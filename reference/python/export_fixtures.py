@@ -178,6 +178,28 @@ def build_wesad_cases(data_dir, max_subjects):
     return cases
 
 
+def build_pycompat():
+    """Casos para verificar que pySum / pyRound / pyFixed del port igualan a CPython:
+    valores aleatorios, empates exactos (k/2^n) y listas que la suma ingenua no reproduce."""
+    rng = np.random.default_rng(99)
+    vals = [float(v) for v in rng.normal(0, 3, 3000)]
+    vals += [float(v) for v in rng.uniform(-1, 1, 1000) * 1e-3]
+    vals += [k / 2 ** n for n in range(1, 8) for k in range(-40, 41, 1)]   # empates
+    vals += [0.125, 0.375, 2.5, 3.5, -0.125, -2.5, 0.03125, 1e-12, -1e-12, 0.0]
+    rounding = [{"x": v, "r1": round(v, 1), "r3": round(v, 3), "r4": round(v, 4),
+                 "f0": f"{v:.0f}", "f2": f"{v:.2f}"} for v in vals]
+    sums = []
+    for i in range(300):
+        n = int(rng.integers(1, 40))
+        scale = 10.0 ** int(rng.integers(-3, 4))
+        xs = [float(v) for v in rng.normal(0, scale, n)]
+        sums.append({"xs": xs, "sum": sum(xs)})
+    sums.append({"xs": [0.1] * 10, "sum": sum([0.1] * 10)})
+    sums.append({"xs": [1e16, 1.0, -1e16], "sum": sum([1e16, 1.0, -1e16])})
+    return {"schema": SCHEMA, "python": platform.python_version(),
+            "rounding": rounding, "sums": sums}
+
+
 def write(case, out_dir):
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, f"{case['meta']['case']}.json")
@@ -199,6 +221,10 @@ def main():
         index.append(os.path.basename(path))
         kinds = [e["kind"] for e in case["expected"]["events"]]
         print(f"  {case['meta']['case']}: {len(case['windows'])} ventanas · eventos {kinds}")
+
+    with open(os.path.join(args.out_dir, "pycompat.json"), "w", encoding="utf-8",
+              newline="\n") as fh:
+        json.dump(build_pycompat(), fh, separators=(",", ":"), allow_nan=False)
 
     if args.wesad_dir:
         local = os.path.join(args.out_dir, "local")

@@ -85,4 +85,35 @@ editarlo.
 
 ## Extensiones del motor TS
 
-_(se completa en la Fase 2)_
+### X-01 · Acciones explícitas del usuario: `applyAction`
+
+`engine.applyAction(action)` es la única vía por la que el usuario influye en el motor.
+Si la acción no corresponde al estado actual, se ignora sin efectos y devuelve `null`. Su
+`t` es tiempo de registro; si llega antes que la última ventana procesada, se lleva a esa
+ventana. Los eventos que produce llevan `actor: 'user'`. Ningún evento de la ruta de
+paridad lo lleva.
+
+| Acción | Solo en | Efecto | Evento |
+|---|---|---|---|
+| `end_intervention` | INTERVENE | El mismo que el fin natural de la intervención, adelantado: RECOVERY, `phase_start = t`, `exit_streak = 0`. La gracia de RECOVERY se cuenta desde `t`. | `intervention_end` (detail "respiración terminada por el usuario") |
+| `cancel_escalation` | ESCALATE | El mismo que la salida natural de ESCALATE: IDLE, cooldown desde `t`, scores vacíos, episodio cerrado. | `escalation_cancelled` |
+| `open_escalation` | ESCALATE | Igual que la cancelación; registra que el usuario abrió el mensaje. | `escalation_opened` |
+
+Por qué hace falta: en el Python, ESCALATE dura exactamente una ventana. En la app, el
+reloj de registro se pausa durante la cuenta regresiva (ver el README), así que el motor
+queda en ESCALATE hasta que el usuario decide. Si llegara una ventana sin acción previa,
+el motor sale de ESCALATE como el Python.
+
+Tests: `engine/test/actions.test.ts` y la variante "con acciones del usuario" de
+`engine/test/invariants.test.ts`. `engine/test/parity.test.ts` no llama `applyAction`.
+
+### X-02 · Opción `recordTrace`
+
+`new KairosEngine(cfg, { recordTrace: false })` no acumula `trace` en memoria (para
+sesiones en vivo largas). No cambia ninguna decisión: `step` devuelve el mismo
+`EngineState`. Default: `true`, como el Python.
+
+### X-03 · `internals`
+
+Getter de solo lectura (línea base, cooldown, rachas) para los tests de invariantes y para
+mostrar el progreso del warmup en la UI. No modifica el estado.

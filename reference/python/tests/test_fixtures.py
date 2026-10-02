@@ -83,3 +83,11 @@ def test_no_nan_in_fixtures():
         with open(os.path.join(FIX, name), encoding="utf-8") as fh:
             raw = fh.read()
         assert "NaN" not in raw and "Infinity" not in raw
+
+
+def test_pycompat_fixture_is_up_to_date():
+    on_disk = _load("pycompat.json")
+    fresh = json.loads(json.dumps(ef.build_pycompat(), allow_nan=False))
+    assert on_disk == fresh
+    # la suma compensada es lo que justifica pySum en el port
+    assert sum([0.1] * 10) == 1.0
