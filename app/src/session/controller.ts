@@ -328,7 +328,7 @@ export class SessionController {
     const history = [...this.snap.history, point].slice(-HISTORY_LEN);
     this.set({ last: res.state, internals: res.internals, history });
     this.track(res);
-    this.applyTimePolicy(prev, res.state.state);
+    this.applyTimePolicy(prev, res.state.state, res.state.t);
     if (res.events.some((e) => e.kind === 'escalate')) this.beginEscalation();
   }
 
@@ -360,10 +360,14 @@ export class SessionController {
   }
 
   /** 1× durante INTERVENE; restaura la velocidad del usuario al salir. */
-  private applyTimePolicy(prev: EngineState['state'], next: EngineState['state']): void {
+  private applyTimePolicy(prev: EngineState['state'], next: EngineState['state'], windowT?: number): void {
     if (!this.clock) return;
     if (next === 'INTERVENE' && prev !== 'INTERVENE' && this.clock.speed !== 1) {
       this.clock.setSpeed(1);
+      // lo que corrió a velocidad alta mientras el motor respondía no cuenta para la
+      // respiración; seguro mientras no haya salido la ventana siguiente
+      const step = this.snap.meta?.stepSec ?? 30;
+      if (windowT !== undefined && this.clock.now() - windowT < step) this.clock.rewindTo(windowT);
       this.set({ speed: 1, speedForced: true });
     } else if (prev === 'INTERVENE' && next !== 'INTERVENE' && this.snap.speedForced) {
       this.clock.setSpeed(this.snap.userSpeed);

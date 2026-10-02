@@ -98,6 +98,17 @@ export class PlaybackClock implements SessionClock {
     this._speed = s;
   }
 
+  /**
+   * Retrocede el tiempo de registro a `t` (nunca adelanta). Solo para alinear la respiración
+   * con la ventana que disparó la intervención: el tiempo que corrió a 30× mientras el motor
+   * respondía no se le resta a los 90 s reales. Quien llama garantiza que no se emitió
+   * ninguna ventana posterior a `t`.
+   */
+  rewindTo(t: number): void {
+    this.advance();
+    if (t < this.recordT) this.recordT = t;
+  }
+
   onTick(cb: (t: number) => void): Unsubscribe {
     this.listeners.add(cb);
     return () => this.listeners.delete(cb);

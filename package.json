@@ -11,7 +11,13 @@
     "test:watch": "vitest",
     "typecheck": "tsc -p engine/tsconfig.test.json && tsc -p app",
     "pytest": "python -m pytest reference/python/tests -q",
-    "fixtures": "python reference/python/export_fixtures.py"
+    "fixtures": "python reference/python/export_fixtures.py",
+    "dev": "npm run dev -w app",
+    "dev:https": "npm run dev:https -w app",
+    "build": "npm run build -w app",
+    "preview": "npm run preview -w app",
+    "e2e": "playwright test",
+    "check": "npm run typecheck && npm test && npm run pytest && npm run e2e"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
@@ -24,5 +30,8 @@
   "overrides": {
     "rollup": "npm:@rollup/wasm-node@^4.43.0",
     "esbuild": "npm:esbuild-wasm@~0.27.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

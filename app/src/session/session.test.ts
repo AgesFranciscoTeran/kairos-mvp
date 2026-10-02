@@ -102,8 +102,8 @@ describe('episodio que cede (WATCH → INTERVENE → RECOVERY → resuelto)', ()
     const wall0 = sched.nowMs();
     await runUntil(() => snap().last?.state === 'RECOVERY', 200);
     const realSec = (sched.nowMs() - wall0) / 1000;
-    expect(realSec).toBeGreaterThanOrEqual(88);
-    expect(realSec).toBeLessThanOrEqual(92);
+    expect(realSec).toBeGreaterThanOrEqual(89);
+    expect(realSec).toBeLessThanOrEqual(91);
   });
 
   it('terminar la respiración antes entra al motor como acción del usuario', async () => {
@@ -116,6 +116,31 @@ describe('episodio que cede (WATCH → INTERVENE → RECOVERY → resuelto)', ()
     expect(snap().episode?.breathingEndedEarly).toBe(true);
     expect(snap().episode?.events.at(-1)).toMatchObject({ kind: 'intervention_end', actor: 'user' });
   });
+});
+
+it('aunque el motor tarde en responder, la respiración no pierde segundos', async () => {
+  // motor lento: cada paso tarda 300 ms reales en volver (a 30× son 9 s de registro)
+  const sched = new FakeScheduler();
+  const { InlineEngineClient: Inline } = await import('./inlineEngineClient');
+  const ctl = new SessionController({
+    engineFactory: (cfg) => {
+      const inner = new Inline(cfg);
+      return { ...inner, step: async (w) => { const r = await inner.step(w); sched.advance(300); return r; }, action: (a) => inner.action(a), metrics: () => inner.metrics(), dispose: () => {} };
+    },
+    scheduler: sched,
+    wakeLock: noWakeLock,
+    persist: false,
+  });
+  await ctl.start(new SyntheticSource('resolves'), {
+    config: { ...DEFAULT_CONFIG }, speed: 30, contact: null, userName: '', messageTemplate: '', countdownSec: 30,
+  });
+  for (let i = 0; i < 3000 && ctl.getSnapshot().last?.state !== 'INTERVENE'; i++) {
+    sched.advance(100);
+    await ctl.idle();
+  }
+  expect(ctl.getSnapshot().last?.state).toBe('INTERVENE');
+  expect(ctl.recordNow()).toBe(ctl.getSnapshot().internals!.phaseStart);
+  await ctl.stop();
 });
 
 describe('episodio que escala', () => {

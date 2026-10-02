@@ -1,0 +1,14 @@
+# Alternativa a GitHub Pages: conectar el repo en Netlify y listo.
+[build]
+  command = "npm run build"
+  publish = "app/dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Referrer-Policy = "no-referrer"
+    X-Content-Type-Options = "nosniff"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), accelerometer=(self), gyroscope=(self)"

@@ -40,7 +40,11 @@ apruebe). Kairos NO detecta emociones: trabaja con correlatos fisiológicos de a
 - Una PWA no monitorea en segundo plano: Wake Lock y aviso honesto.
 
 ## Comandos
-- `python -m pytest reference/python/tests` — fixtures al día y referencia cruzada
-- `python reference/python/export_fixtures.py [--wesad-dir DIR]` — regenerar fixtures
-- `npm test` — motor, fuentes y app (Vitest)
-- `npm run e2e` — Playwright
+- `npm run check` — tipos + Vitest + pytest + Playwright (todo debe estar en verde)
+- `npm test` / `npm run pytest` / `npm run e2e` por separado
+- `npm run fixtures` (o `python reference/python/export_fixtures.py --wesad-dir DIR`)
+- `npm run dev`, `npm run dev:https` (DeviceMotion en el teléfono), `npm run build`
+
+## Entorno
+- Windows con Smart App Control: sin binarios nativos sin firmar. Vite 7 + Vitest 3 con
+  rollup/esbuild en WASM (`overrides`), Playwright con Edge (`PW_CHANNEL=chromium` en CI).
