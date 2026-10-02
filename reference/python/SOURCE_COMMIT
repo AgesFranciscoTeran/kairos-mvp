@@ -1,0 +1,12 @@
+repo:    https://github.com/AgesFranciscoTeran/kairos-tech
+commit:  4942044d2d27ddeba6c73901f6eae7b235a4c78f  (2026-09-13 23:34:39 -0500)
+files:
+  kairos_engine.py                               -> kairos-replay/kairos_engine.py
+  build_replay.py                                -> kairos-replay/build_replay.py
+  wesad-feasibility/kairos_wesad_separability.py -> wesad-feasibility/kairos_wesad_separability.py
+  wesad-feasibility/requirements.txt             -> wesad-feasibility/requirements.txt
+Copias literales. No se editan: la paridad del port TS se mide contra ellas.
+build_replay.py vive en kairos-replay/ para que su DEFAULT_EXTRACTOR
+(../wesad-feasibility/...) resuelva sin modificar el archivo.
+  demo-sintetico.json                            -> kairos-replay/demo-sintetico.json
+    (salida publicada del replay sintético; los tests la usan como referencia cruzada)

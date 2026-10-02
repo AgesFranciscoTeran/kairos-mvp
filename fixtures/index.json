@@ -1,0 +1,13 @@
+{
+ "schema": 1,
+ "cases": [
+  "synthetic-seed7.json",
+  "synthetic-seed1.json",
+  "synthetic-seed2.json",
+  "synthetic-seed3.json",
+  "synthetic-seed11.json",
+  "synthetic-seed42.json",
+  "synthetic-gaps.json",
+  "synthetic-altcfg.json"
+ ]
+}
