@@ -19,6 +19,19 @@ def _load(name):
         return json.load(fh)
 
 
+# versión del intérprete y de numpy: se registran para trazabilidad, no definen los datos
+ENV_KEYS = ("python", "numpy")
+
+
+def _strip_env(d):
+    d = dict(d)
+    if "meta" in d:
+        d["meta"] = {k: v for k, v in d["meta"].items() if k not in ENV_KEYS}
+    for k in ENV_KEYS:
+        d.pop(k, None)
+    return d
+
+
 def _index():
     return _load("index.json")["cases"]
 
@@ -33,7 +46,7 @@ def test_fixture_files_are_up_to_date(case):
     # el JSON en disco es exactamente lo que produce el exportador hoy
     on_disk = _load(case["meta"]["case"] + ".json")
     fresh = json.loads(json.dumps(case, ensure_ascii=False, allow_nan=False))
-    assert on_disk == fresh, "fixtures desactualizadas: corre export_fixtures.py"
+    assert _strip_env(on_disk) == _strip_env(fresh), "fixtures desactualizadas: corre export_fixtures.py"
 
 
 @pytest.mark.parametrize("name", _index())
@@ -88,6 +101,6 @@ def test_no_nan_in_fixtures():
 def test_pycompat_fixture_is_up_to_date():
     on_disk = _load("pycompat.json")
     fresh = json.loads(json.dumps(ef.build_pycompat(), allow_nan=False))
-    assert on_disk == fresh
+    assert _strip_env(on_disk) == _strip_env(fresh)
     # la suma compensada es lo que justifica pySum en el port
     assert sum([0.1] * 10) == 1.0
