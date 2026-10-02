@@ -89,6 +89,7 @@ export class RecordSource implements SensorSource {
       speedPolicy: 'free',
       synthetic: record.synthetic,
       usesMotion: false,
+      realUse: false,
     };
   }
 

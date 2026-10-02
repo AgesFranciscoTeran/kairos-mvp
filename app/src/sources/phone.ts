@@ -86,6 +86,7 @@ export class PhoneImuSource implements SensorSource {
       speedPolicy: 'realtime',
       synthetic: false,
       usesMotion: true,
+      realUse: !provider.simulated,
     };
   }
 
@@ -147,6 +148,7 @@ export class HybridSource implements SensorSource {
       speedPolicy: 'locked',
       synthetic: record.synthetic,
       usesMotion: true,
+      realUse: false,
     };
   }
 

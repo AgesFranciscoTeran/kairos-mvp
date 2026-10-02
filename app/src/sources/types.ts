@@ -31,6 +31,12 @@ export interface SourceMeta {
   synthetic: boolean;
   /** ¿usa el movimiento real (o simulado) del teléfono? */
   usesMotion: boolean;
+  /**
+   * ¿Son datos de uso real de esta persona? Solo con señales en vivo de sensores reales.
+   * Todo lo demás (sintético, replay, híbrido, simulado) es demo y se guarda marcado así,
+   * para no mezclarlo con la semilla del dataset.
+   */
+  realUse: boolean;
 }
 
 export type SourceStatus =
