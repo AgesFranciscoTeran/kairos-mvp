@@ -187,7 +187,10 @@ test('borrar todos los datos vacía el historial y vuelve a la bienvenida', asyn
   await page.getByRole('button', { name: 'Terminar sesión' }).click();
   await nav(page, 'Ajustes');
   page.once('dialog', (d) => void d.accept());
+  // la app borra y recarga: se espera esa recarga antes de mirar IndexedDB
+  const reloaded = page.waitForEvent('load');
   await page.getByRole('button', { name: 'Borrar todos mis datos' }).click();
+  await reloaded;
   await expect(page.getByRole('heading', { name: 'Qué es Kairos' })).toBeVisible();
   const counts = await page.evaluate(
     () =>
