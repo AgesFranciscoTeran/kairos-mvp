@@ -9,7 +9,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -p engine/tsconfig.test.json",
+    "typecheck": "tsc -p engine/tsconfig.test.json && tsc -p app",
     "pytest": "python -m pytest reference/python/tests -q",
     "fixtures": "python reference/python/export_fixtures.py"
   },
