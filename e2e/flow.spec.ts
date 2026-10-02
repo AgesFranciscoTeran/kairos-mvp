@@ -75,9 +75,12 @@ test('escalamiento: cuenta regresiva cancelable, no se abre nada', async ({ page
   await expect(alert.getByRole('button', { name: 'Cancelar' })).toBeFocused();
 
   // la cuenta corre en reloj real; el registro está pausado
+  // el cronómetro en pantalla se refresca a 2 Hz: se lee cuando ya muestra el valor pausado
+  await page.clock.runFor(1000);
   const t0 = await page.getByLabel('Tiempo de registro').textContent();
-  await page.clock.runFor(5000);
+  await page.clock.runFor(4000);
   await expect(alert).toContainText('Se abre en 15 s');
+  await page.waitForTimeout(600);
   expect(await page.getByLabel('Tiempo de registro').textContent()).toBe(t0);
 
   await alert.getByRole('button', { name: 'Cancelar' }).click();
